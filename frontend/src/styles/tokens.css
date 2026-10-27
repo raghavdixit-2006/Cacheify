@@ -1,0 +1,87 @@
+/*
+ * Design tokens — one DNA with the marketing landing page:
+ * white/slate surfaces, a single saturated red accent, JetBrains Mono
+ * for labels/code, Geist for UI, slate-900/950 dark panels for the
+ * developer surfaces (console, tokens, outputs).
+ */
+:root {
+  /* Brand */
+  --color-accent: #dc2626;               /* red-600, landing primary */
+  --color-accent-hover: #b91c1c;         /* red-700 */
+  --color-accent-deep: #991b1b;          /* red-800 */
+  --color-accent-container: #fee2e2;     /* red-100 */
+  --color-accent-tint: #fef2f2;          /* red-50 */
+
+  /* Surfaces */
+  --color-bg: #f8fafc;                   /* slate-50 */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;          /* slate-100 */
+  --color-surface-hover: #f8fafc;
+  --color-panel: #0f172a;                /* slate-900: dark dev panels */
+  --color-panel-2: #020617;              /* slate-950 */
+  --color-panel-border: #1e293b;         /* slate-800 */
+  --color-panel-text: #e2e8f0;           /* slate-200 */
+  --color-panel-muted: #94a3b8;          /* slate-400 */
+
+  /* Lines */
+  --color-border: #e2e8f0;               /* slate-200 */
+  --color-border-strong: #cbd5e1;        /* slate-300 */
+  --color-border-hairline: #eef2f7;
+
+  /* Text */
+  --color-text: #0f172a;                 /* slate-900 */
+  --color-text-body: #334155;            /* slate-700 */
+  --color-text-muted: #64748b;           /* slate-500 */
+
+  /* Status (trusted on landing: emerald operational, amber warn, red error) */
+  --color-danger: #b91c1c;
+  --color-danger-strong: #991b1b;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-danger-on-dark: #f87171;
+  --color-ok: #059669;
+  --color-ok-text: #047857;
+  --color-ok-bg: #ecfdf5;
+  --color-ok-border: #a7f3d0;
+  --color-warn: #b45309;
+  --color-warn-bg: #fffbeb;
+  --color-warn-border: #fde68a;
+  --color-info: #2563eb;
+  --color-info-bg: #eff6ff;
+  --color-info-border: #bfdbfe;
+
+  /* Shape */
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  /* Elevation (layered, landing-style) */
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.07);
+  --shadow-2: 0 4px 10px -2px rgba(15, 23, 42, 0.08), 0 8px 24px -6px rgba(15, 23, 42, 0.13);
+  --shadow-3: 0 14px 36px -10px rgba(15, 23, 42, 0.2);
+  --shadow-glow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  --shadow-glow-strong: 0 6px 18px rgba(220, 38, 38, 0.35);
+
+  /* Type */
+  --font-ui: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --tap-target: 44px;
+  --shell-width: 1240px;
+  --header-height: 64px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --speed: 160ms;
+}

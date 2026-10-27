@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "installedBy": "skillforge-skills@1.0.0",
+  "updatedAt": "2026-10-21T09:36:46.350Z",
+  "skills": {
+    "backend": {
+      "name": "backend",
+      "adapter": "universal",
+      "targetDir": ".agents/skills/backend",
+      "installedAt": "2026-10-21T07:13:57.743Z",
+      "version": "1.0.0",
+      "description": "Backend architecture and systems engineering guidelines covering feature-modular architecture, zero-trust input validation, DAL/repository pattern, and deterministic API contracts.",
+      "files": [
+        {
+          "path": ".agents/skills/backend/SKILL.md",
+          "sha256": "bce64d6310c414b5c75be6b70a4cec717300c1d7b67d1d4495e482ca080a1d23"
+        }
+      ]
+    },
+    "database": {
+      "name": "database",
+      "adapter": "universal",
+      "targetDir": ".agents/skills/database",
+      "installedAt": "2026-10-21T07:13:57.762Z",
+      "version": "1.0.0",
+      "description": "Database architecture and data modeling guidelines covering 3NF schema design, strict constraints, foreign key indexing, ACID transactions, and zero-downtime migrations.",
+      "files": [
+        {
+          "path": ".agents/skills/database/Skill.md",
+          "sha256": "41cdd20810340601570f8e42cbc617c5c3422a9d1997f9f9c38bd0db3c21927a"
+        }
+      ]
+    },
+    "frontend": {
+      "name": "frontend",
+      "adapter": "universal",
+      "targetDir": ".agents/skills/frontend",
+      "installedAt": "2026-10-21T07:13:57.780Z",
+      "version": "1.0.0",
+      "description": "Frontend architecture, modular component design, strict separation of business logic, zero-emoji policy, and Bootstrap Icons.",
+      "files": [
+        {
+          "path": ".agents/skills/frontend/SKILL.md",
+          "sha256": "52cf4a086a8998df03074b6969b4cfb64be0a583e765cec343718436e46fe0b2"
+        }
+      ]
+    },
+    "UIUX": {
+      "name": "UIUX",
+      "adapter": "universal",
+      "targetDir": ".agents/skills/UIUX",
+      "installedAt": "2026-10-21T07:13:57.795Z",
+      "version": "1.0.0",
+      "description": "Principal UI/UX design and Agent Experience (AX) standards covering human behavior, cognitive patterns, information architecture, navigation, and accessibility.",
+      "files": [
+        {
+          "path": ".agents/skills/UIUX/Skill.md",
+          "sha256": "90e36cd5e7e4fbd7cbfec0b847d6252dc4c34eac9375c9c855730f99a8c73b09"
+        }
+      ]
+    },
+    "testing": {
+      "name": "testing",
+      "adapter": "antigravity",
+      "targetDir": ".agents/skills/testing",
+      "installedAt": "2026-10-21T09:06:24.205Z",
+      "version": "1.0.0",
+      "description": "Principal QA and test automation engineering guidelines covering specification-based black-box testing (EP, BVA, truth tables), white-box path coverage, and mutation testing.",
+      "files": [
+        {
+          "path": ".agents/skills/testing/SKILL.md",
+          "sha256": "987d3a8bce80343da9c2ab71ad1c57fcd7a373745fd093fe9d47151fb1fdbde4"
+        }
+      ]
+    },
+    "docs": {
+      "name": "docs",
+      "adapter": "antigravity",
+      "targetDir": ".agents/skills/docs",
+      "installedAt": "2026-10-21T09:36:46.349Z",
+      "version": "1.0.0",
+      "description": "Master specification for software documentation practices across the SDLC (requirements, architecture, technical API, user manuals, and maintenance).",
+      "files": [
+        {
+          "path": ".agents/skills/docs/SKILL.md",
+          "sha256": "83662fdd2c498acfa977aa2cf39a9b3e8726d884ad441f50925d4d0fb74ba506"
+        }
+      ]
+    }
+  }
+}

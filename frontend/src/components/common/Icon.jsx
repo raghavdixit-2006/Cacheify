@@ -1,0 +1,134 @@
+/**
+ * Bootstrap icons via react-bootstrap-icons, rendered through a single name
+ * map so components request icons by semantic name and stay decoupled from
+ * the icon library. All icons are decorative: aria-hidden, semantic labels
+ * live on button aria-labels or visible text (matches the old icon contract).
+ */
+
+import {
+  Activity, ArrowLeft, ArrowRepeat, ArrowRight, Archive, BarChart, Book, BoxArrowRight,
+  BoxArrowUpRight, Braces, Calendar, CashCoin, CashStack, Check2Circle, CheckLg, ChevronDown,
+  Clipboard, Clock, Cloud, Copy, Cpu, CreditCard, Database, Diagram3, Download, Envelope, Eraser,
+  ExclamationTriangle, Eye, Gear, Globe, GraphUp, Grid1x2, Grid3x3, HandIndex, Hdd, HddNetwork,
+  Headset, Infinity as InfinityIcon, Info, InfoCircle, Inbox, Key, Layers, Lightning, Link45deg,
+  List, ListUl, Lock, PatchCheckFill, People, Person, PersonBadge, PersonCircle, PersonDash,
+  PauseCircle, Pencil, PlayCircle, Plus, PlusLg, RocketTakeoff, Robot, Save, Send, Server,
+  ShieldCheck, ShieldLock, ShieldPlus, SlashCircle, Sliders, SortNumericDown, Speedometer2,
+  Star, StarFill, Stack, Stopwatch, Table, Terminal, ToggleOn, Trash, Triangle, Type, X,
+  XCircle, XLg,
+} from 'react-bootstrap-icons';
+
+const MAP = {
+  'add': Plus,
+  'plus': Plus,
+  'plus-lg': PlusLg,
+  'arrow-left': ArrowLeft,
+  'arrow-repeat': ArrowRepeat,
+  'toggle-on': ToggleOn,
+  'archive': Archive,
+  'bar_chart': BarChart,
+  'badge': PersonBadge,
+  'bolt': Lightning,
+  'box-arrow-right': BoxArrowRight,
+  'box-arrow-up-right': BoxArrowUpRight,
+  'braces': Braces,
+  'calendar': Calendar,
+  'calendar_today': Calendar,
+  'check-lg': CheckLg,
+  'check2-circle': Check2Circle,
+  'chevron-down': ChevronDown,
+  'clipboard': Clipboard,
+  'clock': Clock,
+  'database': Database,
+  'envelope': Envelope,
+  'eraser': Eraser,
+  'exclamation-triangle': ExclamationTriangle,
+  'eye': Eye,
+  'font': Type,
+  'gear': Gear,
+  'grid-1x2': Grid1x2,
+  'hand-index': HandIndex,
+  'hdd': Hdd,
+  'inbox': Inbox,
+  'infinity': InfinityIcon,
+  'info': Info,
+  'info-circle': InfoCircle,
+  'key': Key,
+  'lightning': Lightning,
+  'list': List,
+  'list-ul': ListUl,
+  'diagram-3': Diagram3,
+  'table': Table,
+  'lock': Lock,
+  'menu-book': Book,
+  'people': People,
+  'person': Person,
+  'person-circle': PersonCircle,
+  'person-dash': PersonDash,
+  'pause-circle': PauseCircle,
+  'pencil': Pencil,
+  'play-circle': PlayCircle,
+  'save': Save,
+  'shield-lock': ShieldLock,
+  'shield-plus': ShieldPlus,
+  'show_chart': GraphUp,
+  'slash-circle': SlashCircle,
+  'sliders': Sliders,
+  'sort-numeric-down': SortNumericDown,
+  'terminal': Terminal,
+  'trash': Trash,
+  'x': X,
+  'x-circle': XCircle,
+  'x-lg': XLg,
+
+  /* Landing substitutions: old Material Symbols ligature names from
+     client/landing.html mapped to their closest Bootstrap icon. */
+  'arrow_forward': ArrowRight,
+  'check_circle': Check2Circle,
+  'credit_card_off': CreditCard,
+  'change_history': Triangle,
+  'cloud_queue': Cloud,
+  'layers': Layers,
+  'stack': Stack,
+  'monitoring': Activity,
+  'dns': HddNetwork,
+  'content_copy': Copy,
+  'memory': Cpu,
+  'speed': Speedometer2,
+  'sync': ArrowRepeat,
+  'grid_view': Grid3x3,
+  'payments': CashCoin,
+  'public': Globe,
+  'neurology': Key,
+  'http': Send,
+  'storage': Hdd,
+  'move_to_inbox': Inbox,
+  'timer': Stopwatch,
+  'cable': Link45deg,
+  'electric_bolt': Lightning,
+  'battery_0_bar': CashStack,
+  'language': Server,
+  'download': Download,
+  'rocket_launch': RocketTakeoff,
+  'settings_suggest': Gear,
+  'smart_toy': Robot,
+  'done': CheckLg,
+  'star': Star,
+  'star-fill': StarFill,
+  'support_agent': Headset,
+  'verified': PatchCheckFill,
+  'verified_user': ShieldCheck,
+  'shield': ShieldLock,
+  'health_and_safety': ShieldCheck,
+};
+
+export function iconComponent(name) {
+  return MAP[name] || null;
+}
+
+/** Renders a Bootstrap icon by semantic name; unknown names render nothing. */
+export function Icon({ name, className = '' }) {
+  const Component = MAP[name];
+  if (!Component) return null;
+  return <Component className={`bi ${className}`.trim()} aria-hidden="true" focusable="false" />;
+}

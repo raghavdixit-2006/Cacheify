@@ -1,0 +1,35 @@
+# --- dependencies ---
+node_modules/
+
+# --- secrets & local env config (backend/.env, frontend/.env.local, ...) ---
+.env
+.env.*
+!.env.example
+
+# --- builds & caches ---
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# --- logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- os junk ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- editor & local agent/tooling state ---
+.vscode/
+.idea/
+.claude/
+.opencode/
+.claude-mem/

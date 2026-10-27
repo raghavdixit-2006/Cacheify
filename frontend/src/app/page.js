@@ -1,6 +1,6 @@
 import LandingScripts from '../components/features/landing/LandingScripts.jsx';
 import { Icon } from '../components/common/Icon.jsx';
-import { apiOrigin } from '../utils/config.js';
+import { apiOrigin, API_EXAMPLE_ORIGIN } from '../utils/config.js';
 
 /**
  * Marketing landing page — 1:1 port of client/landing.html. Tailwind Play
@@ -101,7 +101,7 @@ const LOGO_SRC = 'https://lh3.googleusercontent.com/aida/AEtjO1VdeHuwPMa0CHIorR6
 const AI_PROMPT_TEXT = `You are wiring an application (server-side) to Cacheify - an HTTP REST front-end for Redis that speaks JSON from any language or framework.
 
 1) ADD TO .ENV (create the file if it does not exist):
-   CACHEIFY_BASE_URL=http://localhost:3000
+   CACHEIFY_BASE_URL=${API_EXAMPLE_ORIGIN}
    CACHEIFY_DB_ID=rdb_xxxxxxxx       # from the dashboard, Databases page
    CACHEIFY_API_KEY=rk_xxxxxxxx      # from the database page (or API Keys page);
                                       # exactly ONE active key per database
@@ -303,7 +303,7 @@ export default function LandingPage() {
                   {/* Code Snippet Area */}
                   <div className="relative flex-1 bg-black/40 p-space-md rounded-lg font-code-md text-code-md text-slate-200 overflow-x-auto border border-slate-800/50">
                     {/* TS / Node */}
-                    <pre className="code-view leading-relaxed" id="code-ts"><span className="text-rose-400 font-semibold">const</span>{' res = '}<span className="text-rose-400 font-semibold">await</span>{' '}<span className="text-sky-300">fetch</span>{'('}<span className="text-emerald-300">{`http://localhost:3000/api/data/\${dbId}/command`}</span>{', {'}
+                    <pre className="code-view leading-relaxed" id="code-ts"><span className="text-rose-400 font-semibold">const</span>{' res = '}<span className="text-rose-400 font-semibold">await</span>{' '}<span className="text-sky-300">fetch</span>{'('}<span className="text-emerald-300">{`${API_EXAMPLE_ORIGIN}/api/data/\${dbId}/command`}</span>{', {'}
 {'\n'}{'  method: '}<span className="text-emerald-300">{'"POST"'}</span>{','}
 {'\n'}{'  headers: {'}{' '}<span className="text-emerald-300">{'"content-type"'}</span>{': '}<span className="text-emerald-300">{'"application/json"'}</span>{', '}<span className="text-emerald-300">{'"authorization"'}</span>{': '}<span className="text-emerald-300">{`Bearer \${token}`}</span>{' },'}
 {'\n'}{'  body: JSON.'}<span className="text-sky-300">stringify</span>{'({ command: '}<span className="text-emerald-300">{'"SET"'}</span>{', args: ['}<span className="text-emerald-300">{'"session:9942"'}</span>{', '}<span className="text-emerald-300">{'"active"'}</span>{', '}<span className="text-emerald-300">{'"EX"'}</span>{', '}<span className="text-emerald-300">{'"3600"'}</span>{'] })'}
@@ -315,7 +315,7 @@ export default function LandingPage() {
                     {/* Python */}
                     <pre className="code-view hidden leading-relaxed" id="code-py"><span className="text-rose-400 font-semibold">import</span>{' requests'}
 {'\n\n'}{'res = requests.'}<span className="text-sky-300">post</span>{'('}
-{'\n'}{'    '}<span className="text-emerald-300">{'"http://localhost:3000/api/data/<dbId>/pipeline"'}</span>{','}
+{'\n'}{'    '}<span className="text-emerald-300">{`"${API_EXAMPLE_ORIGIN}/api/data/<dbId>/pipeline"`}</span>{','}
 {'\n'}{'    headers={'}<span className="text-emerald-300">{'"Authorization"'}</span>{': '}<span className="text-emerald-300">{'"Bearer <rk_token>"'}</span>{'},'}
 {'\n'}{'    json={'}<span className="text-emerald-300">{'"commands"'}</span>{': ['}
 {'\n'}{'        {'}<span className="text-emerald-300">{'"command"'}</span>{': '}<span className="text-emerald-300">{'"HSET"'}</span>{', '}<span className="text-emerald-300">{'"args"'}</span>{': ['}<span className="text-emerald-300">{'"cart:7719"'}</span>{', '}<span className="text-emerald-300">{'"sku-1"'}</span>{', '}<span className="text-emerald-300">{'"2"'}</span>{']},'}
@@ -333,13 +333,13 @@ export default function LandingPage() {
 {'\n\n'}{'func '}<span className="text-sky-300">main</span>{'() {'}
 {'\n'}{'    body := []'}<span className="text-sky-300">byte</span>{'(`{"command":"GET","args":["session:9942"]}`)'}
 {'\n'}{'    req, _ := http.'}<span className="text-sky-300">NewRequest</span>{'('}<span className="text-emerald-300">{'"POST"'}</span>{','}
-{'\n'}{'        '}<span className="text-emerald-300">{'"http://localhost:3000/api/data/<dbId>/command"'}</span>{', bytes.'}<span className="text-sky-300">NewReader</span>{'(body))'}
+{'\n'}{'        '}<span className="text-emerald-300">{`"${API_EXAMPLE_ORIGIN}/api/data/<dbId>/command"`}</span>{', bytes.'}<span className="text-sky-300">NewReader</span>{'(body))'}
 {'\n'}{'    req.Header.'}<span className="text-sky-300">Set</span>{'('}<span className="text-emerald-300">{'"Authorization"'}</span>{', '}<span className="text-emerald-300">{'"Bearer <rk_token>"'}</span>{')'}
 {'\n'}{'    http.'}<span className="text-sky-300">DefaultClient</span>{'.'}<span className="text-sky-300">Do</span>{'(req)'}
 {'\n'}{'}'}</pre>
                     {/* cURL */}
                     <pre className="code-view hidden leading-relaxed" id="code-curl"><span className="text-slate-500">{'# Execute Redis commands over plain HTTP - no TCP client needed'}</span>
-{'\n'}{'curl -X POST http://localhost:3000/api/data/$DB_ID/pipeline \\'}
+{'\n'}{`curl -X POST ${API_EXAMPLE_ORIGIN}/api/data/$DB_ID/pipeline \\`}
 {'\n'}{'  -H '}<span className="text-emerald-300">{'"Authorization: Bearer $RK_TOKEN"'}</span>{' \\'}
 {'\n'}{'  -H '}<span className="text-emerald-300">{'"Content-Type: application/json"'}</span>{' \\'}
 {'\n'}{'  -d '}<span className="text-emerald-300">{`'{
@@ -683,7 +683,7 @@ export default function LandingPage() {
               <div className="mt-space-xl max-w-2xl mx-auto bg-slate-900 text-slate-100 p-space-md rounded-xl flex items-center justify-between shadow-md border border-slate-800">
                 <div className="flex items-center gap-space-sm overflow-x-auto font-code-md text-code-md text-slate-200">
                   <span className="text-red-400 font-bold">$</span>
-                  <span className="select-all">curl -X POST http://localhost:3000/api/data/$DB_ID/command -H &quot;Authorization: Bearer $RK_TOKEN&quot; -d &apos;{"{\"command\":\"PING\",\"args\":[]}"}&apos;</span>
+                  <span className="select-all">curl -X POST {API_EXAMPLE_ORIGIN}/api/data/$DB_ID/command -H &quot;Authorization: Bearer $RK_TOKEN&quot; -d &apos;{"{\"command\":\"PING\",\"args\":[]}"}&apos;</span>
                 </div>
                 <button className="ml-space-md flex-shrink-0 px-space-md py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-label-md text-label-md flex items-center gap-1 transition-colors border border-slate-700" id="copy-cli-btn">
                   <Icon name="content_copy" className="text-[16px]" />
@@ -712,7 +712,7 @@ export default function LandingPage() {
                   </p>
                   <div className="mb-space-md bg-slate-900 text-slate-100 p-space-md rounded-xl font-code-sm text-code-sm leading-relaxed border border-slate-800 select-all">
                     <span className="text-slate-500"># .env - server-side only, never commit</span><br />
-                    <span className="text-red-400">CACHEIFY_BASE_URL</span>=http://localhost:3000<br />
+                    <span className="text-red-400">CACHEIFY_BASE_URL</span>={API_EXAMPLE_ORIGIN}<br />
                     <span className="text-red-400">CACHEIFY_DB_ID</span>=rdb_&lt;from the Databases page&gt;<br />
                     <span className="text-red-400">CACHEIFY_API_KEY</span>=rk_&lt;one per database, from its page&gt;
                   </div>

@@ -8,9 +8,10 @@
 
 import { Icon } from '../components/common/Icon.jsx';
 import BackHomeButton from '../components/common/BackHomeButton.jsx';
+import { API_EXAMPLE_ORIGIN } from '../utils/config.js';
 
 const ENV_BLOCK = `# .env - server-side only, never commit it
-CACHEIFY_BASE_URL=http://localhost:3000
+CACHEIFY_BASE_URL=${API_EXAMPLE_ORIGIN}
 CACHEIFY_DB_ID=rdb_xxxxxxxx        # from the dashboard, Databases page
 CACHEIFY_API_KEY=rk_xxxxxxxx       # from the API Keys page, shown ONCE`;
 
@@ -35,7 +36,7 @@ const ENDPOINTS = [
   ['GET', '/api/openapi.json', 'Machine-readable OpenAPI 3.1 contract'],
 ];
 
-const HTTP_CURL = `curl -X PUT "http://localhost:3000/api/data/$DB_ID/strings/otp%3Auser%40mail.com" \\
+const HTTP_CURL = `curl -X PUT "${API_EXAMPLE_ORIGIN}/api/data/$DB_ID/strings/otp%3Auser%40mail.com" \\
   -H "Authorization: Bearer $RK_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{"value":"<otp-hash>","expiresInMs":300000}'`;
@@ -151,7 +152,7 @@ public class HttpOtpStore implements OtpStore {
 }`;
 
 const SPRING_CONFIG = `# application.properties (values come from the environment, never hardcoded)
-cacheify.base-url=\${CACHEIFY_BASE_URL:http://localhost:3000}
+cacheify.base-url=\${CACHEIFY_BASE_URL:${API_EXAMPLE_ORIGIN}}
 cacheify.database-id=\${CACHEIFY_DB_ID:}
 cacheify.api-key=\${CACHEIFY_API_KEY:}`;
 

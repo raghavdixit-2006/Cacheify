@@ -93,6 +93,55 @@ async function main() {
       assert.equal(spa.status, 404);
     });
 
+    await step('cors: preflight (OPTIONS) with allowed origin echoed exactly', async () => {
+      const res = await fetch(`${BASE}:${port}/api/auth/login`, {
+        method: 'OPTIONS',
+        headers: {
+          origin: 'http://localhost:3001',
+          'access-control-request-method': 'POST',
+          'access-control-request-headers': 'content-type,authorization',
+        },
+      });
+      assert.equal(res.status, 204, 'allowed preflight is 204');
+      assert.equal(res.headers.get('access-control-allow-origin'), 'http://localhost:3001', 'exact origin echo');
+      const methods = (res.headers.get('access-control-allow-methods') || '').split(',').map((m) => m.trim().toUpperCase());
+      for (const method of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) {
+        assert.ok(methods.includes(method), `allow-methods must include ${method}`);
+      }
+      const allowHeaders = (res.headers.get('access-control-allow-headers') || '').toLowerCase();
+      assert.ok(allowHeaders.includes('authorization') && allowHeaders.includes('content-type'),
+        'preflight must permit authorization + content-type');
+    });
+
+    await step('cors: preflight with disallowed origin carries no ACAO header', async () => {
+      const res = await fetch(`${BASE}:${port}/api/auth/login`, {
+        method: 'OPTIONS',
+        headers: {
+          origin: 'https://evil.example.net',
+          'access-control-request-method': 'POST',
+        },
+      });
+      assert.equal(res.headers.get('access-control-allow-origin'), null, 'unknown origins get no ACAO');
+    });
+
+    await step('cors: actual login from allowed origin is CORS-stamped', async () => {
+      // No real credentials: unknown account -> 401 envelope, still CORS-stamped.
+      const res = await fetch(`${BASE}:${port}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          origin: 'http://localhost:3001',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email: 'ghost@test.dev', password: 'wrong-password' }),
+      });
+      assert.equal(res.status, 401);
+      assert.equal(res.headers.get('access-control-allow-origin'), 'http://localhost:3001',
+        'ACAO present on the actual response, exact origin');
+      const json = await res.json();
+      assert.equal(json.success, false);
+      assert.equal(json.error.code, 'ERR_UNAUTHORIZED');
+    });
+
     await step('auth: register validation rejects short password', async () => {
       const { status, json } = await call('POST', '/api/auth/register', {
         body: { email: 'bad@test.dev', password: 'short' },

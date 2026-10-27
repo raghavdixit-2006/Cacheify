@@ -8,6 +8,7 @@
  */
 
 import { useEffect } from 'react';
+import { API_EXAMPLE_ORIGIN } from '../../../utils/config.js';
 
 const ACTIVE_TAB_CLASSES = ['bg-red-600', 'text-white', 'font-semibold', 'active-tab'];
 const INACTIVE_TAB_CLASSES = ['text-slate-400'];
@@ -73,7 +74,7 @@ export default function LandingScripts() {
       const copyCliBtn = document.getElementById('copy-cli-btn');
       const cliCopyText = document.getElementById('cli-copy-text');
       if (copyCliBtn && cliCopyText) {
-        const command = 'curl -X POST http://localhost:3000/api/data/$DB_ID/command -H "Authorization: Bearer $RK_TOKEN" -d \'{"command":"PING","args":[]}\'';
+        const command = `curl -X POST ${API_EXAMPLE_ORIGIN}/api/data/$DB_ID/command -H "Authorization: Bearer $RK_TOKEN" -d '{"command":"PING","args":[]}'`;
         function onClickCopyCli() {
           navigator.clipboard.writeText(command).then(() => {
             cliCopyText.textContent = 'Copied!';

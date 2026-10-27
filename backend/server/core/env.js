@@ -64,21 +64,35 @@ function resolveConfig() {
   }
 
   // Cross-origin browser clients (the separate Next.js frontend). Exact-match
-  // origin allowlist; empty production list means "no cross-origin access" —
-  // same-origin consumers (tests, curl, agents) are never restricted.
+  // origin allowlist; same-origin consumers (tests, curl, agents) are never
+  // restricted. The deployed frontend origin is ALWAYS allowed so a fresh
+  // deployment answers browser preflight before any panel env is configured;
+  // CORS_ORIGINS extends the list with custom domains (duplicates ignored).
   const corsOrigins = (process.env.CORS_ORIGINS || '')
     .split(',')
-    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .map((origin) => origin.trim().replace(/\/+$/, '').toLowerCase())
     .filter(Boolean);
+  const FRONTEND_ORIGINS = [ // deployed Next.js frontend: exact task origin + the live project alias
+    'https://frontend-nine-rosy-15fjh5o7tt.vercel.app',
+    'https://cacheify-redis-host.vercel.app',
+  ];
   const isDevelopment = nodeEnv !== 'production';
-  const hasDevOrigins = ['http://localhost:3001', 'http://127.0.0.1:3001'];
-  const effectiveCorsOrigins = Object.freeze(corsOrigins.length > 0 ? corsOrigins : isDevelopment ? hasDevOrigins : []);
+  const hasDevOrigins = isDevelopment ? ['http://localhost:3001', 'http://127.0.0.1:3001'] : [];
+  const effectiveCorsOrigins = Object.freeze([...new Set([...corsOrigins, ...FRONTEND_ORIGINS, ...hasDevOrigins])]);
 
   const config = {
     nodeEnv,
     isProduction: nodeEnv === 'production',
-    host: process.env.HOST || '127.0.0.1',
-    port: asInt(process.env.PORT, 3000),
+    // Binding: the Botkeep/Pterodactyl-style proxy reaches the app through the
+    // container's external interface, so the default is 0.0.0.0 — a loopback
+    // bind is invisible to the proxy and every upstream request 503s with
+    // "application is not responding". HOST=127.0.0.1 stays an explicit
+    // local-only choice for loopback development.
+    host: (process.env.HOST || '').trim() || '0.0.0.0',
+    // Port: PORT first, then the panel-assigned SERVER_PORT injected by
+    // Pterodactyl-style eggs, then the 3000 fallback. Empty strings fall
+    // through to the next source, so PORT= does not shadow SERVER_PORT.
+    port: asInt(process.env.PORT || process.env.SERVER_PORT, 3000),
     corsOrigins: effectiveCorsOrigins,
     jwtSecret:
       jwtSecret || crypto.randomUUID().repeat(2), // ephemeral dev fallback, never persisted

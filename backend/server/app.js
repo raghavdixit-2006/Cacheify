@@ -23,12 +23,12 @@ const profileRoutes = require('./modules/profile/route');
    Authorization header, never cookies). Requests without an Origin header
    (curl, tests, server-to-server agents) are unrestricted. */
 function corsMiddleware(req, res, next) {
-  const origin = req.headers.origin;
+  const origin = String(req.headers.origin || '').toLowerCase();
   if (!origin || !config.corsOrigins.includes(origin)) return next();
 
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
   res.setHeader('Access-Control-Max-Age', '600');
 

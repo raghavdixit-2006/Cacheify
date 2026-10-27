@@ -4,8 +4,9 @@ npm-debug.log*
 yarn-error.log*
 *.tsbuildinfo
 
-# server data: SQLite (users, password hashes, audit log) - never commit
-data/
+# server data: SQLite (users, password hashes, audit log) - never commit.
+# Anchored: only backend/data/, not server/modules/data/ (source code)!
+/data/
 
 # secrets: JWT secret, Redis connection string, TLS CA path
 .env

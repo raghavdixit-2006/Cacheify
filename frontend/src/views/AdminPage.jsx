@@ -67,18 +67,14 @@ function RoleConfirmModal({ open, patch, onClose, onConfirm }) {
   );
 }
 
-function ManageModal({ open, user, onClose, onSaved, onRoleToggle }) {
+function ManageModal({ user, onClose, onSaved, onRoleToggle }) {
   const [usageText, setUsageText] = useState('Loading usage stats...');
-  const [maxDatabases, setMaxDatabases] = useState('');
-  const [maxKeysPerDb, setMaxKeysPerDb] = useState('');
-  const [maxValueBytes, setMaxValueBytes] = useState('');
+  const [maxDatabases, setMaxDatabases] = useState(String(user.quota.maxDatabases));
+  const [maxKeysPerDb, setMaxKeysPerDb] = useState(String(user.quota.maxKeysPerDb));
+  const [maxValueBytes, setMaxValueBytes] = useState(String(user.quota.maxValueBytes));
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!open || !user) return undefined;
-    setMaxDatabases(String(user.quota.maxDatabases));
-    setMaxKeysPerDb(String(user.quota.maxKeysPerDb));
-    setMaxValueBytes(String(user.quota.maxValueBytes));
     let cancelled = false;
     getUser(user.id)
       .then(({ data }) => {
@@ -89,13 +85,15 @@ function ManageModal({ open, user, onClose, onSaved, onRoleToggle }) {
           `Active API keys: ${data.usage.apiKeys.active}`,
         );
       })
-      .catch((err) => showErrorToast(errorToMessage(err)));
+      .catch((err) => {
+        if (cancelled) return;
+        setUsageText('Usage stats unavailable.');
+        showErrorToast(errorToMessage(err, 'Could not load usage stats'));
+      });
     return () => {
       cancelled = true;
     };
-  }, [open, user]);
-
-  if (!user) return null;
+  }, [user.id]);
 
   function validateQuotas() {
     const values = [Number(maxDatabases), Number(maxKeysPerDb), Number(maxValueBytes)];
@@ -123,7 +121,7 @@ function ManageModal({ open, user, onClose, onSaved, onRoleToggle }) {
 
   return (
     <Modal
-      open={open}
+      open
       title={`Manage ${user.email}`}
       onClose={onClose}
       actions={(
@@ -244,70 +242,81 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card card-flush">
         {users.length === 0 ? (
           <EmptyState title="No users found" description="Loading issue or nobody has signed up yet." />
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                {['Email', 'Role', 'Databases quota', 'Keys / DB', 'Max value', 'Created', 'Status', ''].map((label, index) => (
-                  <th key={index} scope="col">{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((userRow) => (
-                <tr key={userRow.id}>
-                  <td>{userRow.email}</td>
-                  <td>
-                    <Badge
-                      text={userRow.role}
-                      kind={`role-${userRow.role}`}
-                      iconName={userRow.role === 'admin' ? 'shield-lock' : 'person'}
-                    />
-                  </td>
-                  <td>{String(userRow.quota.maxDatabases)}</td>
-                  <td>{userRow.quota.maxKeysPerDb.toLocaleString()}</td>
-                  <td>{formatBytes(userRow.quota.maxValueBytes)}</td>
-                  <td>{formatDate(userRow.createdAt)}</td>
-                  <td>
-                    {userRow.status === 'active'
-                      ? <Badge text="Active" kind="status-active" iconName="check2-circle" />
-                      : <Badge text="Suspended" kind="status-suspended" iconName="slash-circle" />}
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      <Button
-                        label="Manage"
-                        iconName="sliders"
-                        variant="ghost"
-                        ariaLabel={`Manage ${userRow.email}`}
-                        onClick={() => setManage(userRow)}
-                      />
-                      {userRow.status === 'active' ? (
-                        <Button
-                          label="Suspend"
-                          iconName="pause-circle"
-                          variant="ghost"
-                          ariaLabel={`Suspend ${userRow.email}`}
-                          onClick={() => setSuspendTarget(userRow)}
-                        />
-                      ) : (
-                        <Button
-                          label="Activate"
-                          iconName="play-circle"
-                          variant="ghost"
-                          ariaLabel={`Activate ${userRow.email}`}
-                          onClick={() => void patchUser(userRow, { status: 'active' })}
-                        />
-                      )}
-                    </div>
-                  </td>
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  {[
+                    { label: 'Email' },
+                    { label: 'Role' },
+                    { label: 'Databases quota', secondary: true },
+                    { label: 'Keys / DB', secondary: true },
+                    { label: 'Max value', secondary: true },
+                    { label: 'Created', secondary: true },
+                    { label: 'Status' },
+                    { label: '' },
+                  ].map((column, index) => (
+                    <th key={index} scope="col" className={column.secondary ? 'hide-secondary' : undefined}>{column.label}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((userRow) => (
+                  <tr key={userRow.id}>
+                    <td>{userRow.email}</td>
+                    <td>
+                      <Badge
+                        text={userRow.role}
+                        kind={`role-${userRow.role}`}
+                        iconName={userRow.role === 'admin' ? 'shield-lock' : 'person'}
+                      />
+                    </td>
+                    <td className="hide-secondary">{String(userRow.quota.maxDatabases)}</td>
+                    <td className="hide-secondary">{userRow.quota.maxKeysPerDb.toLocaleString()}</td>
+                    <td className="hide-secondary">{formatBytes(userRow.quota.maxValueBytes)}</td>
+                    <td className="nowrap hide-secondary">{formatDate(userRow.createdAt)}</td>
+                    <td>
+                      {userRow.status === 'active'
+                        ? <Badge text="Active" kind="status-active" iconName="check2-circle" />
+                        : <Badge text="Suspended" kind="status-suspended" iconName="slash-circle" />}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <Button
+                          label="Manage"
+                          iconName="sliders"
+                          variant="ghost"
+                          ariaLabel={`Manage ${userRow.email}`}
+                          onClick={() => setManage(userRow)}
+                        />
+                        {userRow.status === 'active' ? (
+                          <Button
+                            label="Suspend"
+                            iconName="pause-circle"
+                            variant="ghost"
+                            ariaLabel={`Suspend ${userRow.email}`}
+                            onClick={() => setSuspendTarget(userRow)}
+                          />
+                        ) : (
+                          <Button
+                            label="Activate"
+                            iconName="play-circle"
+                            variant="ghost"
+                            ariaLabel={`Activate ${userRow.email}`}
+                            onClick={() => void patchUser(userRow, { status: 'active' })}
+                          />
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         <div className="load-more-row">
           {nextCursor > 0 ? (
@@ -316,21 +325,23 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <ManageModal
-        open={Boolean(manage)}
-        user={manage}
-        onClose={() => setManage(null)}
-        onSaved={(updated) => setUsers((current) => (current || []).map(
-          (entry) => (entry.id === updated.id ? updated : entry),
-        ))}
-        onRoleToggle={(userRow) => setRolePatch({
-          user: userRow,
-          patch: { role: userRow.role === 'admin' ? 'user' : 'admin' },
-          message: userRow.role === 'admin'
-            ? `${userRow.email} will lose admin access. Their sessions are reset.`
-            : `${userRow.email} will gain full admin access to every tenant's data.`,
-        })}
-      />
+      {manage ? (
+        <ManageModal
+          key={manage.id}
+          user={manage}
+          onClose={() => setManage(null)}
+          onSaved={(updated) => setUsers((current) => (current || []).map(
+            (entry) => (entry.id === updated.id ? updated : entry),
+          ))}
+          onRoleToggle={(userRow) => setRolePatch({
+            user: userRow,
+            patch: { role: userRow.role === 'admin' ? 'user' : 'admin' },
+            message: userRow.role === 'admin'
+              ? `${userRow.email} will lose admin access. Their sessions are reset.`
+              : `${userRow.email} will gain full admin access to every tenant's data.`,
+          })}
+        />
+      ) : null}
 
       <SuspendConfirmModal
         open={Boolean(suspendTarget)}

@@ -130,7 +130,8 @@ export default function ProfilePage() {
 
         const s = getSession();
         setOnboarding(Boolean(
-          s && s.user && s.user.emailVerified !== false
+          s && s.user && s.user.role !== 'admin'
+          && s.user.emailVerified !== false
           && data.profile.updatedAt === null
           && !onboardingSkipped(s.user.id),
         ));
@@ -153,7 +154,6 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSave() {

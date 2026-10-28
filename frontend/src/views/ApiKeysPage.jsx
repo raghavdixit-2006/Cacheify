@@ -164,60 +164,62 @@ export default function ApiKeysPage() {
         <Button label="Create API key" iconName="plus-lg" variant="primary" onClick={() => void openCreate()} />
       </div>
 
-      <div className="card">
+      <div className={keys.length ? 'card card-flush' : 'card'}>
         {keys.length === 0 ? (
           <EmptyState
             title="No API keys yet"
             description="Create a scoped key to call the data-plane API from scripts, CI jobs or AI agents."
           />
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                {['Name', 'Database', 'Permission', 'Token prefix', 'Created', 'Last used', 'Status', ''].map((label, index) => (
-                  <th key={index} scope="col">{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {keys.map((keyRow) => (
-                <tr key={keyRow.id}>
-                  <td>{keyRow.name}</td>
-                  <td>
-                    {keyRow.database && keyRow.database.id ? (
-                      <Link href={`/databases/${keyRow.database.id}`}>
-                        {keyRow.database.name || keyRow.database.id}
-                      </Link>
-                    ) : (
-                      'All databases'
-                    )}
-                  </td>
-                  <td>{permissionBadge(keyRow)}</td>
-                  <td className="mono">{`${keyRow.prefix}\u2026`}</td>
-                  <td>{formatDate(keyRow.createdAt)}</td>
-                  <td>{keyRow.lastUsedAt ? formatDate(keyRow.lastUsedAt) : 'Never'}</td>
-                  <td>
-                    {keyRow.revokedAt
-                      ? <Badge text="Revoked" kind="status-suspended" iconName="x-circle" />
-                      : <Badge text="Active" kind="status-active" iconName="check2-circle" />}
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      {!keyRow.revokedAt ? (
-                        <Button
-                          label="Revoke"
-                          iconName="slash-circle"
-                          variant="ghost"
-                          ariaLabel={`Revoke ${keyRow.name}`}
-                          onClick={() => setRevokeTarget(keyRow)}
-                        />
-                      ) : null}
-                    </div>
-                  </td>
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  {['Name', 'Database', 'Permission', 'Token prefix', 'Created', 'Last used', 'Status', ''].map((label, index) => (
+                    <th key={index} scope="col">{label}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {keys.map((keyRow) => (
+                  <tr key={keyRow.id}>
+                    <td>{keyRow.name}</td>
+                    <td>
+                      {keyRow.database && keyRow.database.id ? (
+                        <Link href={`/databases/${keyRow.database.id}`}>
+                          {keyRow.database.name || keyRow.database.id}
+                        </Link>
+                      ) : (
+                        'All databases'
+                      )}
+                    </td>
+                    <td>{permissionBadge(keyRow)}</td>
+                    <td className="mono">{`${keyRow.prefix}\u2026`}</td>
+                    <td className="nowrap">{formatDate(keyRow.createdAt)}</td>
+                    <td className="nowrap">{keyRow.lastUsedAt ? formatDate(keyRow.lastUsedAt) : 'Never'}</td>
+                    <td>
+                      {keyRow.revokedAt
+                        ? <Badge text="Revoked" kind="status-suspended" iconName="x-circle" />
+                        : <Badge text="Active" kind="status-active" iconName="check2-circle" />}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        {!keyRow.revokedAt ? (
+                          <Button
+                            label="Revoke"
+                            iconName="slash-circle"
+                            variant="ghost"
+                            ariaLabel={`Revoke ${keyRow.name}`}
+                            onClick={() => setRevokeTarget(keyRow)}
+                          />
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

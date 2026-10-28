@@ -11,7 +11,10 @@ import { Icon } from './Icon.jsx';
 export default function Modal({ open, title, onClose, children, actions = null }) {
   const dialogRef = useRef(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return undefined;

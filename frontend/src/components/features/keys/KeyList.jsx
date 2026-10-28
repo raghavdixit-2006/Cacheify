@@ -31,7 +31,12 @@ export default function KeyList({ dbId, selected, onSelect }) {
     try {
       const { data, meta } = await listKeys(dbId, { pattern: patternRef.current, cursor: cursorRef.current, limit: 25 });
       if (sequence !== pendingRef.current) return;
-      keysRef.current = replace ? data.keys : keysRef.current.concat(data.keys);
+      const now = Date.now();
+      const rows = data.keys.map((keyRow) => ({
+        ...keyRow,
+        ttlMs: keyRow.expiresAt ? Date.parse(keyRow.expiresAt) - now : null,
+      }));
+      keysRef.current = replace ? rows : keysRef.current.concat(rows);
       cursorRef.current = meta ? meta.cursor : 0;
       setKeys([...keysRef.current]);
       setHasMore(cursorRef.current > 0);
@@ -124,39 +129,41 @@ export default function KeyList({ dbId, selected, onSelect }) {
           />
         ) : (
           <>
-            <table className="data-table">
-              <caption className="sr-only">Keys in this database</caption>
-              <thead>
-                <tr>
-                  {['Key', 'Type', 'Size', 'TTL'].map((cell) => (
-                    <th key={cell} scope="col">{cell}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {keys.map((keyRow) => (
-                  <tr
-                    key={keyRow.name}
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`Key ${keyRow.name} of type ${keyRow.type}`}
-                    className={keyRow.name === selected ? 'is-clickable is-selected' : 'is-clickable'}
-                    onClick={() => void selectKey(keyRow)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        void selectKey(keyRow);
-                      }
-                    }}
-                  >
-                    <td>{keyRow.name}</td>
-                    <td>{keyRow.type}</td>
-                    <td>{formatBytes(keyRow.bytes)}</td>
-                    <td>{formatTtl(keyRow.expiresAt ? Date.parse(keyRow.expiresAt) - Date.now() : null)}</td>
+            <div className="table-scroll">
+              <table className="data-table">
+                <caption className="sr-only">Keys in this database</caption>
+                <thead>
+                  <tr>
+                    {['Key', 'Type', 'Size', 'TTL'].map((cell) => (
+                      <th key={cell} scope="col">{cell}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {keys.map((keyRow) => (
+                    <tr
+                      key={keyRow.name}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Key ${keyRow.name} of type ${keyRow.type}`}
+                      className={keyRow.name === selected ? 'is-clickable is-selected' : 'is-clickable'}
+                      onClick={() => void selectKey(keyRow)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          void selectKey(keyRow);
+                        }
+                      }}
+                    >
+                      <td>{keyRow.name}</td>
+                      <td>{keyRow.type}</td>
+                      <td>{formatBytes(keyRow.bytes)}</td>
+                      <td>{formatTtl(keyRow.ttlMs)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {hasMore ? (
               <div className="load-more-row">
                 <Button label="Load more" iconName="chevron-down" onClick={() => void loadPage()} />

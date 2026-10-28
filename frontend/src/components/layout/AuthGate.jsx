@@ -14,15 +14,37 @@
  */
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
 import { useSession } from '../../hooks/index.js';
 import Navbar from './Navbar.jsx';
+import Sidebar from './Sidebar.jsx';
+import Footer from './Footer.jsx';
 import { getSession, onboardingSkipped } from '../../store/store.js';
 import { matchRoute, Routes } from '../../router/routes.js';
 import { navigate } from '../../router/navigate.js';
 import { refreshSession } from '../../services/authService.js';
 import { getProfile } from '../../services/profileService.js';
+
+const CONSOLE_PAGES = new Set([
+  'databases',
+  'databaseDetail',
+  'databaseSettings',
+  'apiKeys',
+  'profile',
+  'admin',
+]);
+
+const INFO_PAGES = new Set(['manual', 'privacy', 'blog', 'blogPost']);
+
+/* False on the server, true after hydration — without a setState effect. */
+const subscribeHydration = () => () => {};
+const getHydratedClient = () => true;
+const getHydratedServer = () => false;
+
+function useHydrated() {
+  return useSyncExternalStore(subscribeHydration, getHydratedClient, getHydratedServer);
+}
 
 function Forbidden() {
   return (
@@ -36,49 +58,80 @@ function Forbidden() {
 
 function decide(session, pathname) {
   const matched = matchRoute(pathname);
-  if (!matched) return { kind: 'render' };
+  if (!matched) return { kind: 'render', matched: null };
   const { route } = matched;
 
   if (route.access === 'public') {
     // Only auth screens bounce signed-in users away; informational public
-    // pages (privacy policy) stay viewable while signed in.
+    // pages (privacy, manual) stay viewable while signed in.
     if (session && (route.page === 'login' || route.page === 'register')) {
-      // Unverified sessions land on the dedicated verify screen; verified
-      // ones go straight into the app.
       return {
         kind: 'replace',
         path: session.user.emailVerified === false ? Routes.verify : Routes.databases,
+        matched,
       };
     }
-    return { kind: 'render' };
+    return { kind: 'render', matched };
   }
 
   if (!session) {
-    return { kind: 'replace', path: Routes.login };
+    return { kind: 'replace', path: Routes.login, matched };
   }
   if (route.access === 'admin' && session.user.role !== 'admin') {
-    return { kind: 'forbidden' };
+    return { kind: 'forbidden', matched };
   }
   // Email verification gate: OTP is only for email verification, so
   // unverified accounts get shunted to the dedicated /verify page instead
   // of a banner on top of every locked app page.
   if (session.user.emailVerified === false && route.page !== 'verify') {
-    return { kind: 'replace', path: Routes.verify };
+    return { kind: 'replace', path: Routes.verify, matched };
   }
   if (route.page === 'verify' && session.user.emailVerified !== false) {
-    return { kind: 'replace', path: Routes.databases };
+    return { kind: 'replace', path: Routes.databases, matched };
   }
-  return { kind: 'render' };
+  return { kind: 'render', matched };
 }
 
 export default function AuthGate({ children }) {
   const session = useSession();
   const pathname = usePathname() || '';
   const decision = decide(session, pathname);
+  const [navOpen, setNavOpen] = useState(false);
+  /* The store hydrates from localStorage after the server render. Do not make
+     redirect decisions against the server's null session, or a reload of a
+     deep link (for example /profile) bounces through /login to /databases. */
+  const hydrated = useHydrated();
+
+  const showSidebar = Boolean(
+    session
+    && decision.kind === 'render'
+    && decision.matched
+    && CONSOLE_PAGES.has(decision.matched.route.page),
+  );
+
+  const showFooter = Boolean(
+    decision.kind === 'render'
+    && decision.matched
+    && INFO_PAGES.has(decision.matched.route.page),
+  );
 
   useEffect(() => {
-    if (decision.kind === 'replace') navigate(decision.path, { replace: true });
-  }, [decision]);
+    if (hydrated && decision.kind === 'replace') navigate(decision.path, { replace: true });
+  }, [hydrated, decision]);
+
+  useEffect(() => {
+    if (!navOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function onKeyDown(event) {
+      if (event.key === 'Escape') setNavOpen(false);
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [navOpen]);
 
   useEffect(() => {
     /* Keep stale sessions honest: revalidate the user on focus/visibility. */
@@ -116,10 +169,31 @@ export default function AuthGate({ children }) {
 
   return (
     <div className="app-shell">
-      <Navbar />
-      <main id="app-main" className="app-main" tabIndex={-1}>
-        {decision.kind === 'render' ? children : decision.kind === 'forbidden' ? <Forbidden /> : null}
-      </main>
+      <a className="skip-link" href="#app-main">Skip to content</a>
+      <Navbar
+        showSidebar={showSidebar}
+        sidebarOpen={navOpen}
+        onOpenNav={() => setNavOpen((current) => !current)}
+      />
+      <div className={`app-frame${showSidebar ? ' has-sidebar' : ''}`}>
+        {showSidebar ? (
+          <>
+            <Sidebar open={navOpen} onNavigate={() => setNavOpen(false)} />
+            <button
+              type="button"
+              className={`sidebar-backdrop${navOpen ? ' is-open' : ''}`}
+              aria-label="Close navigation"
+              tabIndex={navOpen ? 0 : -1}
+              aria-hidden={!navOpen}
+              onClick={() => setNavOpen(false)}
+            />
+          </>
+        ) : null}
+        <main id="app-main" className="app-main" tabIndex={-1}>
+          {decision.kind === 'render' ? children : decision.kind === 'forbidden' ? <Forbidden /> : null}
+        </main>
+      </div>
+      {showFooter ? <Footer /> : null}
     </div>
   );
 }

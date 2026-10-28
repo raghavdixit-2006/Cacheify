@@ -144,31 +144,33 @@ function ScopedKeysTable({ dbId }) {
 
   return (
     <>
-      <table className="data-table">
-        <thead>
-          <tr>
-            {['Name', 'Permission', 'Token prefix', 'Created', 'Last used', 'Status'].map((label) => (
-              <th key={label} scope="col">{label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {keys.map((keyRow) => (
-            <tr key={keyRow.id}>
-              <td>{keyRow.name}</td>
-              <td>{keyRow.permission === 'read-only' ? 'Read only' : 'Read + write'}</td>
-              <td>{`${keyRow.prefix}\u2026`}</td>
-              <td>{formatDate(keyRow.createdAt)}</td>
-              <td>{keyRow.lastUsedAt ? formatDate(keyRow.lastUsedAt) : 'Never'}</td>
-              <td>
-                {keyRow.revokedAt
-                  ? <Badge text="Revoked" kind="status-suspended" iconName="x-circle" />
-                  : <Badge text="Active" kind="status-active" iconName="check2-circle" />}
-              </td>
+      <div className="table-scroll">
+        <table className="data-table">
+          <thead>
+            <tr>
+              {['Name', 'Permission', 'Token prefix', 'Created', 'Last used', 'Status'].map((label) => (
+                <th key={label} scope="col">{label}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {keys.map((keyRow) => (
+              <tr key={keyRow.id}>
+                <td>{keyRow.name}</td>
+                <td>{keyRow.permission === 'read-only' ? 'Read only' : 'Read + write'}</td>
+                <td>{`${keyRow.prefix}\u2026`}</td>
+                <td className="nowrap">{formatDate(keyRow.createdAt)}</td>
+                <td className="nowrap">{keyRow.lastUsedAt ? formatDate(keyRow.lastUsedAt) : 'Never'}</td>
+                <td>
+                  {keyRow.revokedAt
+                    ? <Badge text="Revoked" kind="status-suspended" iconName="x-circle" />
+                    : <Badge text="Active" kind="status-active" iconName="check2-circle" />}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Button label="Manage all keys" iconName="key" variant="ghost" onClick={() => navigate('/api-keys')} />
     </>
   );

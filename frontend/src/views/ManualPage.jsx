@@ -8,6 +8,7 @@
 
 import { Icon } from '../components/common/Icon.jsx';
 import BackHomeButton from '../components/common/BackHomeButton.jsx';
+import CopyButton from '../components/features/landing/CopyButton.jsx';
 import { API_EXAMPLE_ORIGIN } from '../utils/config.js';
 
 const ENV_BLOCK = `# .env - server-side only, never commit it
@@ -217,7 +218,7 @@ const SECTIONS = [
     title: 'Quick start in four calls',
     list: [
       'Register: POST /api/auth/register {"email":"...","password":"..."} - then login the same way; the session token comes back in data.token.',
-      'Create a database: POST /api/databases {"name":"my-db"} - you get up to five, each fully quota- allotd and isolated.',
+      'Create a database: POST /api/databases {"name":"my-db"} - you get up to five, each fully isolated and capped by quotas.',
       'Mint a scoped key: POST /api/databases/{dbId}/api-keys {"name":"my-app","permission":"read-write"} - the plaintext (rk_...) is shown once; store it in your server\'s .env. Exactly one active key per database: revoke the current key first to mint a replacement.',
       'Use the data plane with only that key: the connection string is {BASE}/api/data/{dbId} - PUT /strings/..., GET /keys/..., as shown in the next sections. Your app never needs your account password.',
     ],
@@ -320,60 +321,54 @@ const SECTIONS = [
 
 /* ------------------------------------------------------------------ */
 
-const PRE_STYLE = {
-  margin: '0',
-  padding: '14px 16px',
-  background: '#0f172a',
-  color: '#e2e8f0',
-  border: '1px solid #1e293b',
-  borderRadius: '10px',
-  overflow: 'auto',
-  fontFamily: "'JetBrains Mono',ui-monospace,monospace",
-  fontSize: '12.5px',
-  lineHeight: 1.65,
-  maxHeight: '420px',
+const SECTION_IDS = {
+  'What Cacheify is': 'overview',
+  'The one rule every client must know': 'http-contract',
+  'Quick start in four calls': 'quickstart',
+  'Environment reference (.env)': 'environment',
+  'Data-plane endpoint reference': 'endpoints',
+  'TTL and expiry semantics': 'ttl-and-expiry',
+  'Framework cookbook': 'cookbook',
+  'Spring Boot: keep your RedisTemplate code, bridge the transport': 'spring-boot',
+  'Status codes and error codes': 'errors',
+  'Security and operations': 'security',
+  'Building with AI agents': 'agents',
+  FAQ: 'faq',
 };
 
 function CodeBlock({ label, text }) {
   return (
-    <div style={{ margin: '10px 0 4px' }}>
-      {label ? (
-        <div className="mono" style={{ fontSize: '11px', letterSpacing: '.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '6px', fontWeight: '700' }}>{label}</div>
-      ) : null}
-      <pre style={PRE_STYLE}>{text}</pre>
+    <div className="docs-code">
+      <div className="docs-code-head">
+        <span className="docs-code-label">{label}</span>
+        <CopyButton
+          text={text}
+          label="Copy code"
+          copiedLabel="Copied"
+          className="docs-copy"
+          iconName="clipboard"
+        />
+      </div>
+      <pre>{text}</pre>
     </div>
   );
 }
 
 function SectionTable({ headers, rows }) {
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+    <table className="docs-table">
       <thead>
         <tr>
           {headers.map((header) => (
-            <th
-              key={header}
-              style={{ textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #e2e8f0', fontSize: '11.5px', letterSpacing: '.06em', textTransform: 'uppercase', color: '#64748b', whiteSpace: 'nowrap' }}
-            >
-              {header}
-            </th>
+            <th key={header} scope="col">{header}</th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <tr key={row[1]} style={{ borderBottom: '1px solid #e2e8f0' }}>
-            {row.map((cell, i) => (
-              <td
-                key={i}
-                className={i === 0 ? 'mono' : undefined}
-                style={{
-                  padding: '8px 10px',
-                  verticalAlign: 'top',
-                  ...(i === 0 ? { fontWeight: '700', color: '#b91c1c', whiteSpace: 'nowrap' } : null),
-                  ...(i === 1 ? { fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: '12px', color: '#334155', paddingRight: '16px' } : null),
-                }}
-              >
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex} className={cellIndex === 1 ? 'mono' : undefined}>
                 {cell}
               </td>
             ))}
@@ -386,59 +381,84 @@ function SectionTable({ headers, rows }) {
 
 export default function ManualPage() {
   return (
-    <div>
-      <div className="page-toolbar" style={{ margin: '12px 0 16px' }}>
-        <div className="page-heading" style={{ margin: '0' }}>
-          <h1>
-            <Icon name="menu-book" />
-            {' '}
-            Developer manual
-          </h1>
-          <p>The full contract for humans: environment variables, endpoints, TTL semantics, framework recipes (including Spring Boot), errors and security.</p>
-        </div>
-      </div>
-
-      <p className="muted" style={{ margin: '0 0 20px' }}>
-        {`Last updated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}
-      </p>
-
-      {SECTIONS.map((section, sectionIndex) => (
-        <div className="card" key={`${sectionIndex}-${section.title}`} style={{ marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '17px', margin: '0 0 10px' }}>
-            <Icon name={section.icon} />
-            {` ${section.title}`}
-          </h2>
-
-          {(section.body || []).map((paragraph) => (
-            <p style={{ margin: '0 0 10px' }} key={paragraph}>{paragraph}</p>
+    <div className="docs-page">
+      <aside className="docs-toc" aria-label="On this page">
+        <p className="docs-toc-title">On this page</p>
+        <nav>
+          {SECTIONS.map((section) => (
+            <a href={`#${SECTION_IDS[section.title]}`} key={section.title}>
+              {section.title}
+            </a>
           ))}
+        </nav>
+      </aside>
 
-          {section.list ? (
-            <ul style={{ margin: '0', paddingLeft: '20px' }}>
-              {section.list.map((item) => (
-                <li style={{ marginBottom: '6px' }} key={item}>{item}</li>
-              ))}
-            </ul>
-          ) : null}
+      <div className="docs-content">
+        <header className="docs-head">
+          <p className="dash-eyebrow">
+            <span className="dot" aria-hidden="true" />
+            Developer documentation
+          </p>
+          <h1>Developer manual</h1>
+          <p>
+            The full contract for humans: environment variables, endpoints, TTL
+            semantics, framework recipes (including Spring Boot), errors and security.
+          </p>
+          <div className="docs-meta">
+            <span><Icon name="send" /> HTTP + JSON</span>
+            <span><Icon name="key" /> Scoped bearer keys</span>
+            <span><Icon name="clock" /> Mandatory TTL</span>
+            <span>Last reviewed October 2026</span>
+          </div>
+        </header>
 
-          {(section.code || []).map((code) => (
-            <CodeBlock key={code.label} label={code.label} text={code.text} />
-          ))}
+        {SECTIONS.map((section) => (
+          <section className="docs-section" id={SECTION_IDS[section.title]} key={section.title}>
+            <h2>
+              <Icon name={section.icon} />
+              {section.title}
+            </h2>
 
-          {section.table ? <SectionTable headers={['Method', 'Path', 'Purpose']} rows={section.table} /> : null}
-          {section.table2 ? <SectionTable headers={['Status', 'Code', 'Meaning']} rows={section.table2} /> : null}
+            {(section.body || []).map((paragraph, index) => (
+              <p key={`${section.title}-body-${index}`}>{paragraph}</p>
+            ))}
 
-          {section.faq ? section.faq.map(([question, answer]) => (
-            <div key={question}>
-              <p style={{ fontWeight: '700', margin: '12px 0 4px' }}>{question}</p>
-              <p style={{ margin: '0 0 6px' }}>{answer}</p>
-            </div>
-          )) : null}
+            {section.list ? (
+              <ul>
+                {section.list.map((item, index) => (
+                  <li key={`${section.title}-item-${index}`}>{item}</li>
+                ))}
+              </ul>
+            ) : null}
+
+            {(section.code || []).map((code) => (
+              <CodeBlock key={code.label} label={code.label} text={code.text} />
+            ))}
+
+            {section.table ? (
+              <SectionTable headers={['Method', 'Path', 'Purpose']} rows={section.table} />
+            ) : null}
+            {section.table2 ? (
+              <SectionTable headers={['Status', 'Code', 'Meaning']} rows={section.table2} />
+            ) : null}
+
+            {section.faq ? (
+              <div className="docs-faq">
+                {section.faq.map(([question, answer]) => (
+                  <details key={question}>
+                    <summary>{question}</summary>
+                    <p>{answer}</p>
+                  </details>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ))}
+
+        <div className="docs-foot">
+          <BackHomeButton />
+          <span>Corrections welcome - every endpoint above is exercised by the API test suite.</span>
         </div>
-      ))}
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-        <BackHomeButton />
       </div>
     </div>
   );

@@ -1,89 +1,97 @@
 'use client';
 
 /**
- * Global navigation: stable placement, sign-in/utility tools top-right.
- * Live status pill retained from the landing header motif.
+ * Global top bar. On authenticated screens it pairs with the sidebar rail:
+ * mobile menu toggle, brand, workspace context, docs, plan chip and account
+ * controls. Public routes get the same shell with sign-in actions instead.
  */
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Brand from '../common/Brand.jsx';
 import { Icon } from '../common/Icon.jsx';
 import { Routes } from '../../router/routes.js';
 import { useSession } from '../../hooks/index.js';
 import { navigate } from '../../router/navigate.js';
 import { logout } from '../../services/authService.js';
 
+function currentSection(pathname) {
+  if (pathname.startsWith('/databases/')) {
+    return pathname.endsWith('/settings') ? 'Database settings' : 'Database';
+  }
+  if (pathname === Routes.databases) return 'Overview';
+  if (pathname === Routes.apiKeys) return 'API keys';
+  if (pathname === Routes.profile) return 'Profile';
+  if (pathname === Routes.admin) return 'Admin';
+  if (pathname === Routes.manual) return 'Documentation';
+  if (pathname === Routes.privacy) return 'Privacy';
+  if (pathname.startsWith(Routes.blog)) return 'Engineering notes';
+  if (pathname === Routes.verify) return 'Verify email';
+  if (pathname === Routes.login) return 'Sign in';
+  if (pathname === Routes.register) return 'Create account';
+  return '';
+}
+
 function handleLogout() {
   logout();
   navigate(Routes.login);
 }
 
-export default function Navbar() {
+export default function Navbar({ showSidebar = false, onOpenNav = null, sidebarOpen = false }) {
   const session = useSession();
-  const currentPath = usePathname() || '';
-
-  const links = [
-    { href: Routes.databases, label: 'Dashboard', iconName: 'grid-1x2' },
-    { href: Routes.apiKeys, label: 'API Keys', iconName: 'key' },
-    { href: Routes.profile, label: 'Profile', iconName: 'person-circle' },
-    ...(session && session.user.role === 'admin' ? [{ href: Routes.admin, label: 'Admin', iconName: 'people' }] : []),
-  ];
+  const pathname = usePathname() || '';
+  const section = currentSection(pathname);
 
   return (
     <header id="app-navbar" className="app-navbar">
       <div className="navbar-row">
-        <Link href={session ? Routes.databases : Routes.login} className="navbar-brand">
-          <span className="navbar-logo" aria-hidden="true">
-            <Icon name="bolt" />
-          </span>
-          <span>Cacheify</span>
-        </Link>
-
-        <div className="navbar-status" aria-hidden="true">
-          <span className="dot" />
-          <span>Operational</span>
-        </div>
-
-        {session ? (
-          <ul className="navbar-links">
-            {links.map((item) => {
-              const isCurrent = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
-              return (
-                <li key={item.href}>
-                  <Link href={item.href} aria-current={isCurrent ? 'page' : undefined}>
-                    <Icon name={item.iconName} />
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+        {showSidebar ? (
+          <button
+            type="button"
+            className="navbar-mobile-toggle"
+            aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={sidebarOpen}
+            aria-controls="app-sidebar"
+            onClick={onOpenNav}
+          >
+            <Icon name={sidebarOpen ? 'x-lg' : 'list'} />
+          </button>
         ) : null}
 
+        <Brand href={session ? Routes.databases : '/'} />
+
+        {session && section ? (
+          <span className="navbar-context">
+            <span>Console</span>
+            <span aria-hidden="true">/</span>
+            <strong>{section}</strong>
+          </span>
+        ) : null}
+
+        <span className="navbar-status">
+          <span className="dot" />
+          Free platform
+        </span>
+
         <div className="navbar-user">
-          {/* Privacy policy is reachable logged-out and signed-in alike. */}
-          <Link
-            href={Routes.privacy}
-            className="btn btn-ghost"
-            aria-current={currentPath === Routes.privacy ? 'page' : undefined}
-            style={{ marginRight: '8px' }}
-          >
-            <Icon name="shield-lock" />
-            <span>Privacy</span>
+          <Link href={Routes.manual} className="navbar-docs">
+            <Icon name="menu-book" />
+            <span>Docs</span>
           </Link>
 
           {session ? (
             <>
-              <span className="email">
+              <span className="email" title={session.user.email}>
                 <span className="avatar" aria-hidden="true">
                   {(session.user.email || '?').charAt(0).toUpperCase()}
                 </span>
-                <span title={session.user.email}>{session.user.email}</span>
+                <span>{session.user.email}</span>
               </span>
               <button
                 type="button"
                 className="btn btn-ghost"
                 aria-label="Sign out"
+                title="Sign out"
                 data-agent-action="logout"
                 onClick={handleLogout}
               >
@@ -91,7 +99,17 @@ export default function Navbar() {
                 <span>Sign out</span>
               </button>
             </>
-          ) : null}
+          ) : (
+            <>
+              <Link href={Routes.login} className="btn btn-ghost">
+                Sign in
+              </Link>
+              <Link href={Routes.register} className="btn btn-primary">
+                Start for free
+                <Icon name="arrow_forward" />
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

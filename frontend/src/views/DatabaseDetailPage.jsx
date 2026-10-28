@@ -36,14 +36,10 @@ const PERMISSIONS = [
 /** Label + mono value + copy chip, stacked. */
 function connectionRow(label, value, monoLarge) {
   return (
-    <div style={{ marginBottom: '14px' }}>
-      <div style={{ fontSize: '10.5px', letterSpacing: '.09em', textTransform: 'uppercase', color: 'var(--color-muted)', fontWeight: '700', marginBottom: '4px' }}>
-        {label}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
-        <div className="mono" style={{ flex: '1', minWidth: '0', overflowWrap: 'anywhere', fontSize: monoLarge ? '13px' : '12px', color: 'var(--color-text)' }}>
-          {value}
-        </div>
+    <div className="connection-row">
+      <div className="connection-row-label">{label}</div>
+      <div className="connection-row-value">
+        <div className={`mono${monoLarge ? ' is-large' : ''}`}>{value}</div>
         <Button
           label="Copy"
           iconName="clipboard"
@@ -114,13 +110,23 @@ export default function DatabaseDetailPage({ dbId }) {
   }
 
   useEffect(() => {
-    if (!database) return undefined;
-    void refreshKeySection();
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data } = await getDatabaseApiKey(dbId);
+        if (cancelled) return;
+        setActiveKey(data.apiKey);
+        setKeyPhase(data.apiKey ? 'ready' : 'none');
+      } catch (err) {
+        if (cancelled) return;
+        setKeyError(errorToMessage(err, 'Could not load the key state'));
+        setKeyPhase('error');
+      }
+    })();
     return () => {
-      /* no cleanup needed; state swapped per render */
+      cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [database]);
+  }, [dbId]);
 
   /* --------------------------- Key selection ------------------------------- */
 
@@ -129,7 +135,7 @@ export default function DatabaseDetailPage({ dbId }) {
     try {
       const { data } = await getKey(dbId, keyRow.name);
       setEditorDetail({ name: keyRow.name, ...data.key });
-      setEditorMode('ready');
+      setEditorMode('editor');
       setEditorSeq((seq) => seq + 1);
     } catch (err) {
       showErrorToast(errorToMessage(err, 'Could not load key'));
@@ -214,8 +220,8 @@ export default function DatabaseDetailPage({ dbId }) {
 
     return (
       <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '10px' }}>
-          <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--color-muted)' }}>API key</div>
+        <div className="key-panel-head">
+          <div className="key-panel-title">API key</div>
           <Badge
             text={activeKey ? '1 key active' : 'no key yet'}
             kind={activeKey ? 'status-active' : 'status-archived'}
@@ -224,31 +230,32 @@ export default function DatabaseDetailPage({ dbId }) {
 
         {!activeKey ? (
           <>
-            <p style={{ margin: '0 0 12px', color: 'var(--color-muted)', fontSize: '13px', lineHeight: 1.5 }}>
-              No API key yet. This database allows exactly one active key - mint it here and use its plaintext as the bearer token above.
+            <p className="key-panel-empty">
+              No API key yet. This database allows exactly one active key - mint it
+              here and use its plaintext as the bearer token above.
             </p>
             <Button label="Create API key" iconName="key" variant="primary" onClick={openCreateKey} />
           </>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 16px', fontSize: '13px', marginBottom: '12px' }}>
-              <span style={{ color: 'var(--color-muted)' }}>Name</span>
-              <span>{activeKey.name}</span>
-              <span style={{ color: 'var(--color-muted)' }}>Token prefix</span>
-              <span className="mono">{`${activeKey.prefix}\u2026`}</span>
-              <span style={{ color: 'var(--color-muted)' }}>Created</span>
-              <span>{formatDate(activeKey.createdAt)}</span>
-              <span style={{ color: 'var(--color-muted)' }}>Last used</span>
-              <span>{activeKey.lastUsedAt ? formatDate(activeKey.lastUsedAt) : 'Never'}</span>
-              <span style={{ color: 'var(--color-muted)' }}>Permission</span>
-              <span>
+            <dl className="key-meta-grid">
+              <dt>Name</dt>
+              <dd>{activeKey.name}</dd>
+              <dt>Token prefix</dt>
+              <dd className="mono">{`${activeKey.prefix}\u2026`}</dd>
+              <dt>Created</dt>
+              <dd>{formatDate(activeKey.createdAt)}</dd>
+              <dt>Last used</dt>
+              <dd>{activeKey.lastUsedAt ? formatDate(activeKey.lastUsedAt) : 'Never'}</dd>
+              <dt>Permission</dt>
+              <dd>
                 <Badge
                   text={activeKey.permission === 'read-only' ? 'Read only' : 'Read + write'}
                   kind={activeKey.permission === 'read-only' ? 'perm-read-only' : 'perm-read-write'}
                   iconName={activeKey.permission === 'read-only' ? 'eye' : 'pencil'}
                 />
-              </span>
-            </div>
+              </dd>
+            </dl>
             <p className="hint">One active key per database. To rotate: revoke first, then mint a replacement.</p>
             <Button
               label="Revoke key"
@@ -281,32 +288,33 @@ export default function DatabaseDetailPage({ dbId }) {
       />
 
       {/* ------------------------------ Heading ------------------------------ */}
-      <div className="page-toolbar" style={{ margin: '12px 0 16px' }}>
-        <div className="page-heading" style={{ margin: '0' }}>
-          <h1 style={{ fontFamily: 'var(--font-mono)', wordBreak: 'break-all' }}>
-            <span aria-hidden="true">
-              <Icon name={database.status === 'active' ? 'database' : 'lock'} />
-            </span>
-            {` ${database.name} `}
+      <div className="db-detail-head">
+        <div className="db-detail-heading">
+          <h1 className="db-detail-title">
+            <Icon name={database.status === 'active' ? 'database' : 'lock'} />
+            <span className="db-detail-name">{database.name}</span>
             <Badge text={database.status} kind={`status-${database.status}`} />
           </h1>
-          {database.description ? <p>{database.description}</p> : null}
+          {database.description ? <p className="db-detail-desc">{database.description}</p> : null}
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="db-detail-stats">
           {statChips.map(([label, value]) => (
-            <span className="stat" style={{ padding: '8px 14px' }} key={label}>
-              <span className="label">{label}</span>
-              <span className="value">{value}</span>
+            <span className="db-detail-stat" key={label}>
+              <span>{label}</span>
+              <span>{value}</span>
             </span>
           ))}
         </div>
       </div>
 
       {/* --------------------------- Connect card ---------------------------- */}
-      <div className="card" style={{ marginBottom: '24px' }}>
-        <div className="card-title">Connect your app</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '20px' }}>
-          <div>
+      <div className="card db-connect-card">
+        <div className="card-title">
+          <Icon name="cable" />
+          {' Connect your app'}
+        </div>
+        <div className="db-connect-grid">
+          <div className="db-connect-main">
             {connectionRow('Database ID', database.id, false)}
             {connectionRow('Connection string', `${apiOrigin()}/api/data/${dbId}`, true)}
             {connectionRow('Auth header', 'Authorization: Bearer <your API key>', false)}
@@ -314,7 +322,7 @@ export default function DatabaseDetailPage({ dbId }) {
               Every data call goes under the connection string (strings/, keys/, expire, command). Keep the key on your server - it is full access to this database within its permission.
             </p>
           </div>
-          <div style={{ borderLeft: '1px solid var(--color-border)', paddingLeft: '20px', minWidth: '0' }}>
+          <div className="db-connect-side">
             {keyColumn()}
           </div>
         </div>
@@ -349,7 +357,7 @@ export default function DatabaseDetailPage({ dbId }) {
       </div>
 
       {/* ------------------------------ Actions ------------------------------ */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', gap: '8px' }}>
+      <div className="detail-actions">
         <Button
           label="Settings"
           iconName="sliders"
@@ -389,26 +397,28 @@ export default function DatabaseDetailPage({ dbId }) {
         />
         <div className="field">
           <span>Permission *</span>
-          {PERMISSIONS.map((entry, index) => (
-            <label
-              key={entry.value}
-              htmlFor={`dbkey-permission-${index}`}
-              style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginTop: '6px', cursor: 'pointer' }}
-            >
-              <input
-                type="radio"
-                name="dbkey-permission"
-                id={`dbkey-permission-${index}`}
-                value={entry.value}
-                checked={permission === entry.value}
-                onChange={(event) => setPermission(event.target.value)}
-              />
-              <span>
-                <strong>{entry.label}</strong>
-                <span className="hint" style={{ display: 'block' }}>{entry.hint}</span>
-              </span>
-            </label>
-          ))}
+          <div className="radio-stack">
+            {PERMISSIONS.map((entry, index) => (
+              <label
+                key={entry.value}
+                htmlFor={`dbkey-permission-${index}`}
+                className="radio-card"
+              >
+                <input
+                  type="radio"
+                  name="dbkey-permission"
+                  id={`dbkey-permission-${index}`}
+                  value={entry.value}
+                  checked={permission === entry.value}
+                  onChange={(event) => setPermission(event.target.value)}
+                />
+                <span>
+                  <strong>{entry.label}</strong>
+                  <span className="hint">{entry.hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
           <p className="hint">Enforced server-side on every request.</p>
         </div>
         <p className="inline-error" role="alert" hidden={!createKeyError}>{createKeyError}</p>

@@ -1,75 +1,95 @@
 /*
- * Design tokens — one DNA with the marketing landing page:
- * white/slate surfaces, a single saturated red accent, JetBrains Mono
- * for labels/code, Geist for UI, slate-900/950 dark panels for the
- * developer surfaces (console, tokens, outputs).
+ * Cacheify design tokens.
+ *
+ * One system for the marketing site and the console:
+ * warm white surfaces, ink/navy developer panels, a single vibrant red
+ * accent, hairline borders, fine technical grids and a restrained type
+ * scale. Legacy token names are preserved so existing views keep working.
  */
+
 :root {
-  /* Brand */
-  --color-accent: #dc2626;               /* red-600, landing primary */
-  --color-accent-hover: #b91c1c;         /* red-700 */
-  --color-accent-deep: #991b1b;          /* red-800 */
-  --color-accent-container: #fee2e2;     /* red-100 */
-  --color-accent-tint: #fef2f2;          /* red-50 */
+  /* Brand ---------------------------------------------------------------- */
+  --color-accent: #e11d2e;
+  --color-accent-hover: #c41122;
+  --color-accent-deep: #9f0d1b;
+  --color-accent-container: #feecee;
+  --color-accent-tint: #fff7f8;
+  --color-accent-soft: rgba(225, 29, 46, 0.1);
+  --color-accent-line: #f6b8bf;
+  --color-accent-on-dark: #ff5b6a;
 
-  /* Surfaces */
-  --color-bg: #f8fafc;                   /* slate-50 */
+  /* Surfaces ------------------------------------------------------------- */
+  --color-bg: #f7f7f8;
+  --color-bg-soft: #fbfbfc;
+  --color-bg-warm: #faf9f7;
   --color-surface: #ffffff;
-  --color-surface-alt: #f1f5f9;          /* slate-100 */
-  --color-surface-hover: #f8fafc;
-  --color-panel: #0f172a;                /* slate-900: dark dev panels */
-  --color-panel-2: #020617;              /* slate-950 */
-  --color-panel-border: #1e293b;         /* slate-800 */
-  --color-panel-text: #e2e8f0;           /* slate-200 */
-  --color-panel-muted: #94a3b8;          /* slate-400 */
+  --color-surface-alt: #f2f3f5;
+  --color-surface-hover: #f8f8fa;
+  --color-surface-raised: #ffffff;
+  --color-ink: #0b0d12;
+  --color-ink-soft: #161923;
+  --color-panel: #0b0e17;
+  --color-panel-2: #060810;
+  --color-panel-3: #111624;
+  --color-panel-border: #232838;
+  --color-panel-line: rgba(255, 255, 255, 0.08);
+  --color-panel-text: #e7e9ef;
+  --color-panel-muted: #8d94a6;
 
-  /* Lines */
-  --color-border: #e2e8f0;               /* slate-200 */
-  --color-border-strong: #cbd5e1;        /* slate-300 */
-  --color-border-hairline: #eef2f7;
+  /* Lines ---------------------------------------------------------------- */
+  --color-border: #e6e7eb;
+  --color-border-strong: #d3d5dc;
+  --color-border-hairline: #eff0f3;
+  --color-grid-line: rgba(15, 23, 42, 0.055);
 
-  /* Text */
-  --color-text: #0f172a;                 /* slate-900 */
-  --color-text-body: #334155;            /* slate-700 */
-  --color-text-muted: #64748b;           /* slate-500 */
+  /* Text ----------------------------------------------------------------- */
+  --color-text: #101218;
+  --color-text-body: #3f4450;
+  --color-text-muted: #6b7280;
+  --color-text-faint: #9aa0ac;
+  --color-text-invert: #ffffff;
 
-  /* Status (trusted on landing: emerald operational, amber warn, red error) */
+  /* Status --------------------------------------------------------------- */
   --color-danger: #b91c1c;
-  --color-danger-strong: #991b1b;
-  --color-danger-bg: #fef2f2;
-  --color-danger-border: #fecaca;
-  --color-danger-on-dark: #f87171;
-  --color-ok: #059669;
-  --color-ok-text: #047857;
-  --color-ok-bg: #ecfdf5;
-  --color-ok-border: #a7f3d0;
-  --color-warn: #b45309;
-  --color-warn-bg: #fffbeb;
-  --color-warn-border: #fde68a;
-  --color-info: #2563eb;
-  --color-info-bg: #eff6ff;
-  --color-info-border: #bfdbfe;
+  --color-danger-strong: #8f1414;
+  --color-danger-bg: #fff5f5;
+  --color-danger-border: #f6c6c6;
+  --color-danger-on-dark: #ff7b85;
+  --color-ok: #0f9f6e;
+  --color-ok-text: #087a54;
+  --color-ok-bg: #effaf6;
+  --color-ok-border: #b9ebda;
+  --color-warn: #a45b08;
+  --color-warn-bg: #fff9ed;
+  --color-warn-border: #f2ddb0;
+  --color-info: #1f5fd0;
+  --color-info-bg: #eff5ff;
+  --color-info-border: #c9dcff;
 
-  /* Shape */
+  /* Shape ---------------------------------------------------------------- */
   --radius-s: 6px;
-  --radius-m: 8px;
+  --radius-m: 9px;
   --radius-l: 12px;
   --radius-xl: 16px;
-  --radius-2xl: 20px;
+  --radius-2xl: 22px;
+  --radius-3xl: 28px;
   --radius-pill: 999px;
 
-  /* Elevation (layered, landing-style) */
-  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.07);
-  --shadow-2: 0 4px 10px -2px rgba(15, 23, 42, 0.08), 0 8px 24px -6px rgba(15, 23, 42, 0.13);
-  --shadow-3: 0 14px 36px -10px rgba(15, 23, 42, 0.2);
-  --shadow-glow: 0 4px 12px rgba(220, 38, 38, 0.25);
-  --shadow-glow-strong: 0 6px 18px rgba(220, 38, 38, 0.35);
+  /* Elevation — borders do most of the work; shadows stay quiet ---------- */
+  --shadow-1: 0 1px 2px rgba(11, 13, 18, 0.04);
+  --shadow-2: 0 10px 30px -16px rgba(11, 13, 18, 0.22), 0 2px 6px rgba(11, 13, 18, 0.04);
+  --shadow-3: 0 28px 70px -30px rgba(11, 13, 18, 0.32), 0 8px 24px -14px rgba(11, 13, 18, 0.18);
+  --shadow-float: 0 20px 50px -28px rgba(11, 13, 18, 0.32);
+  --shadow-glow: 0 6px 18px -8px rgba(225, 29, 46, 0.48);
+  --shadow-glow-strong: 0 10px 28px -10px rgba(225, 29, 46, 0.55);
+  --shadow-panel: 0 40px 100px -40px rgba(3, 5, 10, 0.7);
 
-  /* Type */
+  /* Type ----------------------------------------------------------------- */
   --font-ui: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 
-  /* Space */
+  /* Space ---------------------------------------------------------------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -77,11 +97,22 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
   --tap-target: 44px;
   --shell-width: 1240px;
-  --header-height: 64px;
+  --shell-wide: 1320px;
+  --shell-gutter: clamp(20px, 4vw, 48px);
+  --header-height: 72px;
+  --sidebar-width: 248px;
 
-  /* Motion */
+  /* Motion --------------------------------------------------------------- */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --speed: 160ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --speed: 180ms;
+  --speed-slow: 240ms;
+
+  /* Back-compat aliases used by older view markup ------------------------ */
+  --color-muted: var(--color-text-muted);
 }

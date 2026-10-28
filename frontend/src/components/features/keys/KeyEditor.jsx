@@ -155,16 +155,6 @@ export default function KeyEditor({ dbId, detail, mode = null, onDeleted = null 
     }
   }
 
-  async function removeExpiry() {
-    try {
-      await runCommand(dbId, 'PERSIST', [current.name]);
-      showToast('Expiry removed');
-      await refresh();
-    } catch (err) {
-      showErrorToast(errorToMessage(err, 'Could not remove expiry'));
-    }
-  }
-
   /* ------------------------------- Rendering -------------------------------- */
 
   const meta = (
@@ -243,8 +233,9 @@ export default function KeyEditor({ dbId, detail, mode = null, onDeleted = null 
         </div>
       )}
 
-      {/* TTL controls (seconds, Redis EXPIRE semantics). */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'end', marginTop: '16px', flexWrap: 'wrap' }}>
+      {/* TTL controls (seconds, Redis EXPIRE semantics). Every key must keep
+          an expiry, so there is no "remove expiry" action. */}
+      <div className="key-ttl-row">
         <div className="field" style={{ marginBottom: '0' }}>
           <label htmlFor="ttl-input">Set expiry (seconds)</label>
           <input
@@ -258,7 +249,6 @@ export default function KeyEditor({ dbId, detail, mode = null, onDeleted = null 
           />
         </div>
         <Button label="Set expiry" iconName="clock" onClick={() => void setExpiry()} />
-        <Button label="Remove expiry" iconName="infinity" onClick={() => void removeExpiry()} />
       </div>
 
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>

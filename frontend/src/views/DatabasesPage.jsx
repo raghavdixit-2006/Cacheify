@@ -15,27 +15,16 @@ import { navigate } from '../router/navigate.js';
 
 function DatabaseCard({ database, onSettings, onDelete }) {
   return (
-    <div className="card" data-agent-action="database-card" data-id={database.id}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-        <span
-          aria-hidden="true"
-          style={{
-            width: '44px',
-            height: '44px',
-            flexShrink: '0',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '22px',
-            borderRadius: '12px',
-            background: 'var(--color-accent-container)',
-            color: 'var(--color-accent-deep)',
-            border: '1px solid #fca5a5',
-          }}
-        >
+    <article
+      className={`card db-card${database.status === 'active' ? '' : ' is-archived'}`}
+      data-agent-action="database-card"
+      data-id={database.id}
+    >
+      <div className="db-card-head">
+        <span className="db-card-icon" aria-hidden="true">
           <Icon name={database.status === 'active' ? 'database' : 'lock'} />
         </span>
-        <h2 style={{ margin: '0', fontSize: '17px', flex: 1, letterSpacing: '-0.01em' }}>{database.name}</h2>
+        <h2 className="db-card-name" title={database.name}>{database.name}</h2>
         <Badge
           text={database.status === 'active' ? 'Active' : 'Archived'}
           kind={`status-${database.status}`}
@@ -43,26 +32,30 @@ function DatabaseCard({ database, onSettings, onDelete }) {
         />
       </div>
 
-      {database.description ? (
-        <p className="muted" style={{ margin: '0 0 12px' }}>{database.description}</p>
-      ) : null}
-
-      <div style={{ display: 'flex', gap: '16px', color: 'var(--color-text-muted)', fontSize: '14px', marginBottom: '12px' }}>
-        <span data-testid="key-count">
-          <Icon name="braces" />
-          {` ${database.stats ? database.stats.totalKeys : '-'} keys`}
-        </span>
-        <span>
-          <Icon name="hdd" />
-          {` ${database.stats ? formatBytes(database.stats.totalBytes) : '-'}`}
-        </span>
-      </div>
-
-      <p className="muted" style={{ fontSize: '12px', margin: '0 0 12px' }}>
-        {`Created ${formatDate(database.createdAt)}`}
+      <p className="db-card-desc">
+        {database.description || 'No description yet.'}
       </p>
 
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+      <div className="db-card-stats">
+        <div className="db-card-stat">
+          <span>Keys</span>
+          <span data-testid="key-count">{database.stats ? database.stats.totalKeys : '-'}</span>
+        </div>
+        <div className="db-card-stat">
+          <span>Size</span>
+          <span>{database.stats ? formatBytes(database.stats.totalBytes) : '-'}</span>
+        </div>
+        <div className="db-card-stat">
+          <span>Created</span>
+          <span>{formatDate(database.createdAt)}</span>
+        </div>
+        <div className="db-card-stat">
+          <span>Default TTL</span>
+          <span>24 hours</span>
+        </div>
+      </div>
+
+      <div className="db-card-foot">
         <Button label="Settings" iconName="gear" variant="ghost" ariaLabel={`Settings for ${database.name}`} onClick={() => onSettings(database)} />
         <Button label="Delete" iconName="trash" variant="ghost" ariaLabel={`Delete ${database.name}`} onClick={() => onDelete(database)} />
         <Button
@@ -72,7 +65,7 @@ function DatabaseCard({ database, onSettings, onDelete }) {
           onClick={() => navigate(`/databases/${database.id}`)}
         />
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -199,7 +192,7 @@ export default function DatabasesPage() {
   return (
     <>
       <div className="page-toolbar">
-        <div className="page-heading" style={{ margin: '16px 0 0' }}>
+        <div className="page-heading">
           <h1>
             <Icon name="database" />
             {' '}
@@ -352,7 +345,7 @@ function renderStatBand(databases) {
     { label: 'Plan', value: 'Free forever', icon: 'bolt' },
   ];
   return (
-    <div className="stat-row" id="database-stats">
+    <div className="stat-grid" id="database-stats">
       {cells.map((cell) => (
         <div className="stat" key={cell.label}>
           <span className="label">

@@ -503,33 +503,39 @@ export default function LandingPage() {
                   <span className="pricing-aside-icon">
                     <Icon name="shield-lock" />
                   </span>
-                  <h3>No paid tier. No surprises.</h3>
-                  <p>
-                    There is no upgrade button, no usage invoice and no feature held
-                    behind a paywall. The free plan is the plan.
-                  </p>
+                  <div className="pricing-aside-copy">
+                    <h3>No paid tier. No surprises.</h3>
+                    <p>
+                      There is no upgrade button, no usage invoice and no feature held
+                      behind a paywall. The free plan is the plan.
+                    </p>
+                  </div>
                 </div>
                 <div className="pricing-aside-block">
                   <span className="pricing-aside-icon">
                     <Icon name="hdd-network" />
                   </span>
-                  <h3>Operators can connect real Redis.</h3>
-                  <p>
-                    A deployment can run on the embedded data plane or point at a
-                    Redis server through environment configuration. The HTTP contract
-                    stays the same.
-                  </p>
+                  <div className="pricing-aside-copy">
+                    <h3>Operators can connect real Redis.</h3>
+                    <p>
+                      A deployment can run on the embedded data plane or point at a
+                      Redis server through environment configuration. The HTTP contract
+                      stays the same.
+                    </p>
+                  </div>
                 </div>
                 <div className="pricing-aside-block">
                   <span className="pricing-aside-icon">
                     <Icon name="clock" />
                   </span>
-                  <h3>Expiry is not optional.</h3>
-                  <p>
-                    Every write needs an expiry or inherits the 24-hour default. That
-                    is a deliberate limit, and it keeps forgotten keys from becoming
-                    silent storage costs.
-                  </p>
+                  <div className="pricing-aside-copy">
+                    <h3>Expiry is not optional.</h3>
+                    <p>
+                      Every write needs an expiry or inherits the 24-hour default. That
+                      is a deliberate limit, and it keeps forgotten keys from becoming
+                      silent storage costs.
+                    </p>
+                  </div>
                 </div>
                 <a className="text-link" href="#quickstart">
                   See the quick start

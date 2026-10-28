@@ -267,6 +267,7 @@
 .landing-eyebrow-light { color: #ff8d97; }
 
 .landing-section { padding: clamp(68px, 8vw, 112px) 0; }
+.landing-section[id], .landing-section [id="console"] { scroll-margin-top: calc(var(--header-height) + 20px); }
 
 .section-head {
   display: flex;
@@ -1758,6 +1759,7 @@
   background: var(--color-bg-soft);
 }
 .pricing-aside-block { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 11px; }
+.pricing-aside-copy { min-width: 0; }
 .pricing-aside-icon {
   width: 34px;
   height: 34px;
